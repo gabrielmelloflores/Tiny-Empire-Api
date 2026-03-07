@@ -14,6 +14,7 @@ import {
   ApiResponse,
   ApiBody,
   ApiParam,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -30,6 +31,7 @@ export class UsersController {
   // example protected route left in place
   @Get('admin-only')
   @Roles(Role.Admin)
+  @ApiBearerAuth('access-token')
   adminEndpoint() {
     return { message: 'only admin users may see this' };
   }
@@ -37,6 +39,7 @@ export class UsersController {
   @Get()
   @ApiOperation({ summary: 'Retrieve all users' })
   @ApiResponse({ status: 200, description: 'List of users' })
+  @ApiBearerAuth('access-token')
   findAll() {
     return this.usersService.findAll();
   }
@@ -46,6 +49,7 @@ export class UsersController {
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'User found' })
   @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiBearerAuth('access-token')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findById(id);
   }
@@ -68,6 +72,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Update an existing user' })
   @ApiParam({ name: 'id', type: Number })
   @ApiBody({ type: UpdateUserDto })
+  @ApiBearerAuth('access-token')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateUserDto,
@@ -78,6 +83,7 @@ export class UsersController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a user' })
   @ApiParam({ name: 'id', type: Number })
+  @ApiBearerAuth('access-token')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
   }

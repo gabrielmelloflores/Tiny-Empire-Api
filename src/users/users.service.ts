@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { HashService } from '../common/hash.service';
 import type { User, Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private hashService: HashService,
+  ) {}
 
   async findAll(): Promise<User[]> {
     return this.prisma.user.findMany();
@@ -19,13 +23,27 @@ export class UsersService {
   }
 
   async create(data: { username: string; password: string; roles?: Role[] }) {
-    return this.prisma.user.create({ data });
+    const hashedData = {
+      ...data,
+      password: await this.hashService.hash(data.password),
+    };
+
+    return this.prisma.user.create({ data: hashedData });
   }
 
   async update(id: number, data: Partial<{ username: string; password: string; roles: Role[] }>) {
-    return this.prisma.user.update({ where: { id }, data });
-  }
+    const updateData = { ...data };
 
+    if (updateData.password) {
+      updateData.password = await this.hashService.hash(updateData.password);
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: updateData,
+    });
+  }
+  
   async remove(id: number) {
     return this.prisma.user.delete({ where: { id } });
   }

@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CryptoService } from './crypto.service';
-import { HashService } from './hash.service';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
@@ -21,7 +20,6 @@ import { RolesGuard } from './guards/roles.guards';
   providers: [
     AuthService,
     CryptoService,
-    HashService,
     // first apply basic JWT authentication guard globally
     {
       provide: APP_GUARD,
@@ -34,6 +32,6 @@ import { RolesGuard } from './guards/roles.guards';
     },
   ],
   controllers: [AuthController],
-  exports: [AuthService, CryptoService, HashService],
+  exports: [AuthService, CryptoService],
 })
 export class AuthModule {}
