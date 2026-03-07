@@ -17,6 +17,7 @@ import {
 import { Request as ExpressRequest } from 'express';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
+import { SignInDto } from './dto/sign-in.dto';
 
 interface AuthenticatedRequest extends ExpressRequest {
   user: any;
@@ -44,7 +45,7 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: 'Login successful, returns JWT token' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  signIn(@Body() signInDto: Record<string, any>) {
+  signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto.username, signInDto.password);
   }
 
