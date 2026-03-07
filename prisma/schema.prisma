@@ -1,0 +1,35 @@
+// Prisma schema for Tiny Empires API
+// see https://www.prisma.io/docs/concepts/components/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// user account model
+model User {
+  id       Int     @id @default(autoincrement())
+  username String  @unique
+  password String
+  roles    Role[]  @default([PLAYER])
+  // relations
+  matches  Match[]
+}
+
+// match placeholder; expand as needed
+model Match {
+  id     Int  @id @default(autoincrement())
+  // example relation to user (owner/creator)
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+// reuse the enum from TypeScript
+enum Role {
+  PLAYER
+  ADMIN
+}

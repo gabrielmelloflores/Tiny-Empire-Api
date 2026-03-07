@@ -31,6 +31,20 @@
 $ npm install
 ```
 
+### Database & Prisma
+
+This application uses Prisma for ORM. After setting `DATABASE_URL` in `.env` make sure the database server is running, then run:
+
+```bash
+# install CLI if not already present
+npm install -D prisma
+# generate client and create initial migration
+npx prisma generate
+npx prisma migrate dev --name init
+```
+
+The `prisma/schema.prisma` file defines models for `User`, `Match`, and the `Role` enum. A global `PrismaModule`/`PrismaService` exposes the generated client to the rest of the app.
+
 ## Compile and run the project
 
 ```bash
