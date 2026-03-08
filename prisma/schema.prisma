@@ -17,19 +17,45 @@ model User {
   password String
   roles    Role[]  @default([PLAYER])
   // relations
-  matches  Match[]
+  matches  Player[]
 }
 
-// match placeholder; expand as needed
 model Match {
-  id     Int  @id @default(autoincrement())
-  // example relation to user (owner/creator)
-  user   User @relation(fields: [userId], references: [id])
-  userId Int
+  id              Int         @id @default(autoincrement())
+  name            String
+  status          StatusMatch @default(waiting)
+  turn            Int         @default(1)
+  currentPlayerId Int?
+  maxPlayers      Int
+  createdAt       DateTime    @default(now())
+
+  players         Player[]    @relation("MatchPlayers")
+  currentPlayer   Player?     @relation("CurrentMatchPlayer", fields: [currentPlayerId], references: [id])
 }
 
-// reuse the enum from TypeScript
+model Player {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  matchId       Int
+  score         Int      @default(0)
+  gold          Int      @default(0)
+  food          Int      @default(0)
+  isEliminated  Boolean  @default(false)
+  turnOrder     Int      @default(1)
+
+  user          User     @relation(fields: [userId], references: [id])
+  match         Match    @relation("MatchPlayers", fields: [matchId], references: [id])
+
+  currentInMatch Match[] @relation("CurrentMatchPlayer")
+}
+
 enum Role {
   PLAYER
   ADMIN
+}
+
+enum StatusMatch {
+  waiting
+  running
+  finished
 }

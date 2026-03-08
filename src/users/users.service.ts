@@ -10,12 +10,17 @@ export class UsersService {
     private hashService: HashService,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return this.prisma.user.findMany();
+  async findAll(): Promise<Omit<User, 'password'>[]> {
+    return this.prisma.user.findMany({
+      select: { id: true, username: true, roles: true },
+    });
   }
 
-  async findById(id: number): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { id } });
+  async findById(id: number): Promise<Omit<User, 'password'> | null> {
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, username: true, roles: true },
+    });
   }
 
   async findOne(username: string): Promise<User | null> {
