@@ -1,6 +1,3 @@
-// Prisma schema for Tiny Empires API
-// see https://www.prisma.io/docs/concepts/components/prisma-schema
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -10,14 +7,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// user account model
 model User {
-  id       Int     @id @default(autoincrement())
-  username String  @unique
+  id       Int    @id @default(autoincrement())
+  username String @unique
   password String
-  roles    Role[]  @default([PLAYER])
-  // relations
-  matches  Player[]
+  roles    Role[] @default([PLAYER])
+
+  players Player[]
 }
 
 model Match {
@@ -29,24 +25,82 @@ model Match {
   maxPlayers      Int
   createdAt       DateTime    @default(now())
 
-  players         Player[]    @relation("MatchPlayers")
-  currentPlayer   Player?     @relation("CurrentMatchPlayer", fields: [currentPlayerId], references: [id])
+  players       Player[] @relation("MatchPlayers")
+  cities        City[]
+  currentPlayer Player?  @relation("CurrentMatchPlayer", fields: [currentPlayerId], references: [id])
 }
 
 model Player {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  matchId       Int
-  score         Int      @default(0)
-  gold          Int      @default(0)
-  food          Int      @default(0)
-  isEliminated  Boolean  @default(false)
-  turnOrder     Int      @default(1)
+  id      Int     @id @default(autoincrement())
+  userId  Int
+  matchId Int
+  faction Faction
 
-  user          User     @relation(fields: [userId], references: [id])
-  match         Match    @relation("MatchPlayers", fields: [matchId], references: [id])
+  score Int @default(0)
+  gold  Int @default(0)
+  food  Int @default(0)
+  iron  Int @default(0)
 
+  isEliminated Boolean @default(false)
+  turnOrder    Int     @default(1)
+
+  cities City[]
+
+  user           User    @relation(fields: [userId], references: [id])
+  match          Match   @relation("MatchPlayers", fields: [matchId], references: [id])
   currentInMatch Match[] @relation("CurrentMatchPlayer")
+
+  @@index([userId])
+  @@index([matchId])
+}
+
+model City {
+  id            Int      @id @default(autoincrement())
+  name          String
+  matchId       Int
+  ownerPlayerId Int?
+  type          CityType
+
+  defense   Int      @default(0)
+  isCapital Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  match Match   @relation(fields: [matchId], references: [id])
+  owner Player? @relation(fields: [ownerPlayerId], references: [id])
+
+  buildings Building[]
+
+  connectionsFrom CityConnection[] @relation("fromCity")
+  connectionsTo   CityConnection[] @relation("toCity")
+
+  @@index([matchId])
+  @@index([ownerPlayerId])
+}
+
+model Building {
+  id        Int          @id @default(autoincrement())
+  cityId    Int
+  type      BuildingType
+  level     Int          @default(1)
+  createdAt DateTime     @default(now())
+
+  city City @relation(fields: [cityId], references: [id])
+
+  @@unique([cityId, type])
+  @@index([cityId])
+}
+
+model CityConnection {
+  id         Int @id @default(autoincrement())
+  fromCityId Int
+  toCityId   Int
+
+  fromCity City @relation("fromCity", fields: [fromCityId], references: [id])
+  toCity   City @relation("toCity", fields: [toCityId], references: [id])
+
+  @@unique([fromCityId, toCityId])
+  @@index([fromCityId])
+  @@index([toCityId])
 }
 
 enum Role {
@@ -58,4 +112,28 @@ enum StatusMatch {
   waiting
   running
   finished
+}
+
+enum Faction {
+  HUMAN
+  DWARF
+  ELF
+  UNDEAD
+}
+
+enum CityType {
+  CAPITAL
+  FORTRESS
+  FARM_SETTLEMENT
+  MINING_TOWN
+  MARKET_TOWN
+  RUINS
+}
+
+enum BuildingType {
+  FARM
+  MINE
+  MARKET
+  BARRACKS
+  WALL
 }

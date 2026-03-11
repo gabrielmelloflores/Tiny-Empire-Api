@@ -6,9 +6,10 @@ import { AuthModule } from './auth/auth.module';
 import { MatchesModule } from './matches/matches.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CommonModule } from './common/common.module';
+import { CitiesModule } from './cities/cities.module';
 
 @Module({
-  imports: [PrismaModule, CommonModule, UsersModule, AuthModule, MatchesModule],
+  imports: [PrismaModule, CommonModule, UsersModule, AuthModule, MatchesModule, CitiesModule],
   controllers: [AppController],
   providers: [AppService],
 })

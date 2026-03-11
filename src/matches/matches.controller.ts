@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MatchesService } from './matches.service';
 import { CreateMatchDto } from './dto';
@@ -23,5 +23,18 @@ export class MatchesController {
     @ApiOperation({ summary: 'Create a new match' })
     async createMatch(@Body() dto: CreateMatchDto, @CurrentUser() user: any) {
         return this.matchService.create(dto, user.sub);
+    }
+
+    @Post()
+    @ApiOperation({ summary: 'Start the match' })
+    async startMatch(@Param('id') matchId: number){
+        return this.matchService.startMatch(matchId);
+    }
+
+    @Get(':matchId/cities')
+    @ApiOperation({ summary: 'Retrieve all match cities with their buildings and owner' })
+    @ApiResponse({ status: 200, description: 'List of match cities' })
+    async getMatchCities(@Param('matchId', ParseIntPipe) matchId: number) {
+        return this.matchService.getMatchCities(matchId);
     }
 }

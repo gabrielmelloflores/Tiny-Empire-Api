@@ -1,0 +1,8 @@
+enum CityType {
+  CAPITAL,
+  FORTRESS,
+  FARM_SETTLEMENT,
+  MINING_TOWN,
+  MARKET_TOWN,
+  RUINS
+}
